@@ -1,4 +1,3 @@
-
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -36,7 +35,6 @@ public class SQLHelper {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-
 		try {
 			connection = DriverManager.getConnection(Url, userName, passWord);
 		} catch (SQLException e) {
@@ -46,35 +44,53 @@ public class SQLHelper {
 
 	public void createTable(Class<?> clazz, String tableName,
 			String primaryKeyName) {
-		String sql = "create table " + tableName + "(";
-		Field[] field = clazz.getDeclaredFields();
-		PreparedStatement ps = null;
-		int length = field.length;
-		for (int i = 0; i < length; i++) {
-			if (i != length - 1) {
-				sql += field[i].getName() + " " + m1.get(field[i].getType())
-						+ " " + "not null" + "," + "\r\n";
-			} else {
-				sql += field[i].getName() + " " + m1.get(field[i].getType())
-						+ " " + "not null," + "\r\n" + "primary key " + "("
-						+ primaryKeyName + ")" + ");";
+		boolean flag = false;// judge parmarykey is exist
+		if (m1.containsKey(clazz)) {
+			new myException("the class cannot be used to create table");
+		} else {
+			String sql = "create table " + tableName + "(";
+			Field[] field = clazz.getDeclaredFields();
+			PreparedStatement ps = null;
+			int length = field.length;
+			for (int i = 0; i < length; i++) {
+				if (i != length - 1) {
+					sql += field[i].getName() + " "
+							+ m1.get(field[i].getType()) + " " + "not null"
+							+ "," + "\r\n";
+					if (field[i].getName().equals(primaryKeyName)) {
+						flag = true;
+					}
+				} else {
+					sql += field[i].getName() + " "
+							+ m1.get(field[i].getType()) + " " + "not null,"
+							+ "\r\n" + "primary key " + "(" + primaryKeyName
+							+ ")" + ");";
+					if (field[i].getName().equals(primaryKeyName)) {
+						flag = true;
+					}
+				}
 			}
-		}
-		try {
-			ps = connection.prepareStatement(sql);
-			try {
-				ps.execute();
-			} catch (MySQLSyntaxErrorException e) {
-				System.out.println("the table named " + tableName + " exists");
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				ps.close();
-				connection.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
+			if (flag) {
+				try {
+					ps = connection.prepareStatement(sql);
+					try {
+						ps.execute();
+					} catch (MySQLSyntaxErrorException e) {
+						System.out.println("the table named " + tableName
+								+ " exists");
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						ps.close();
+						connection.close();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+			}else{
+				new myException("primaryKey is not existence");
 			}
 		}
 	}
