@@ -43,10 +43,16 @@ public class SQLHelper {
 	}
 
 	public void createTable(Class<?> clazz, String tableName,
-			String primaryKeyName) {
+			String primaryKeyName){
 		boolean flag = false;// judge parmarykey is exist
 		if (m1.containsKey(clazz)) {
-			new myException("the class cannot be used to create table");
+			try {
+				throw new CreateTableException("the class cannot be used to create table");
+			} catch (CreateTableException e) {
+				// TODO Auto-generated catch block
+				System.out.println("the class cannot be used to create table");
+				e.printStackTrace();
+			}
 		} else {
 			String sql = "create table " + tableName + "(";
 			Field[] field = clazz.getDeclaredFields();
@@ -90,7 +96,12 @@ public class SQLHelper {
 					}
 				}
 			}else{
-				new myException("primaryKey is not existence");
+				try {
+					throw new PrimaryKeyException("primaryKey is not existence");
+				} catch (PrimaryKeyException e) {
+                    System.out.println("primaryKey is not existence");
+					e.printStackTrace();
+				}
 			}
 		}
 	}

@@ -3,3 +3,5 @@
 /SQLHelper.class
 /Student.class
 /myException.class
+/CreateTableException.class
+/PrimaryKeyException.class
